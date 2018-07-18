@@ -100,12 +100,13 @@ class CustomComponents:
             for component in self.components:
                 localversion = self.get_local_version(component[1])
                 remoteversion = self.get_remote_version(component[0])
-                has_update = (remoteversion != False and remoteversion != localversion)
-                self.hass.data[DATA_CC][component[0]] = {
-                    "local": localversion,
-                    "remote": remoteversion,
-                    "has_update": has_update,
-                }
+                if remoteversion:
+                    has_update = (remoteversion != False and remoteversion != localversion)
+                    self.hass.data[DATA_CC][component[0]] = {
+                        "local": localversion,
+                        "remote": remoteversion,
+                        "has_update": has_update,
+                    }
             async_dispatcher_send(self.hass, SIGNAL_SENSOR_UPDATE)
 
     def update_components(self):
