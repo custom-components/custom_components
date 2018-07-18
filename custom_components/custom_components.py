@@ -16,7 +16,7 @@ from homeassistant.helpers.event import track_time_interval
 from homeassistant.helpers.discovery import load_platform
 from homeassistant.helpers.dispatcher import async_dispatcher_send
 
-__version__ = '0.0.3'
+__version__ = '0.0.4'
 
 DOMAIN = 'custom_components'
 DATA_CC = 'custom_components_data'
@@ -36,6 +36,7 @@ CONFIG_SCHEMA = vol.Schema({
 _LOGGER = logging.getLogger(__name__)
 
 BASE_REPO = 'https://raw.githubusercontent.com/custom-components/'
+VISIT_REPO = 'https://github.com/custom-components/${elem[0]}'
 SENSOR_URL = 'https://raw.githubusercontent.com/custom-components/sensor.custom_components/master/custom_components/sensor/custom_components.py'
 VERSION_URL = BASE_REPO + 'information/master/repos.json'
 
@@ -48,21 +49,21 @@ def setup(hass, config):
     controller = CustomComponents(hass, conf_dir)
     hide_sensor = config[DOMAIN][CONF_HIDE_SENSOR]
 
-    def update_components_service(call):
+    def update_all_service(call):
         """Set up service for manual trigger."""
-        controller.update_components()
+        controller.update_all()
 
-    def update_component_service(call):
+    def update_single_service(call):
         """Set up service for manual trigger."""
-        controller.update_component(call.data.get(ATTR_COMPONENT))
+        controller.update_single(call.data.get(ATTR_COMPONENT))
 
     track_time_interval(hass, controller.cache_versions, INTERVAL)
     hass.services.register(
-        DOMAIN, 'update_components', update_components_service)
+        DOMAIN, 'update_all', update_all_service)
     hass.services.register(
-        DOMAIN, 'update_component', update_component_service)
+        DOMAIN, 'update_single', update_single_service)
     hass.services.register(
-        DOMAIN, 'check_versions', controller.cache_versions)
+        DOMAIN, 'check_all', controller.cache_versions)
     if not hide_sensor:
         sensor_dir = str(hass.config.path("custom_components/sensor/"))
         sensor_file = 'custom_components.py'
@@ -107,27 +108,29 @@ class CustomComponents:
                         "remote": remoteversion,
                         "has_update": has_update,
                     }
+                    self.hass.data[DATA_CC]['domain'] = DOMAIN
+                    self.hass.data[DATA_CC]['repo'] = VISIT_REPO
             async_dispatcher_send(self.hass, SIGNAL_SENSOR_UPDATE)
 
-    def update_components(self):
+    def update_all(self):
         """Update all components"""
         for component in self.components:
             try:
                 if self.hass.data[DATA_CC][component[0]]['has_update']:
-                    self.update_component(component[0], component[1])
+                    self.update_single(component[0], component[1])
             except:
                 _LOGGER.debug('Skipping upgrade for %s, no update available', component[0])
 
-    def update_component(self, component, componentpath=None):
+    def update_single(self, component, componentpath=None):
         """Update one components"""
-        if not componentpath:
-            if '.' not in component:
-                componentpath = self.conf_dir + '/custom_components/' + component + '.py'
-            else:
-                domain = component.split('.')[0]
-                platform = component.split('.')[1]
-                componentpath = self.conf_dir + '/custom_components/' + domain + '/' + platform + '.py'
         if component in self.hass.data[DATA_CC]:
+            if not componentpath:
+                if '.' not in component:
+                    componentpath = self.conf_dir + '/custom_components/' + component + '.py'
+                else:
+                    domain = component.split('.')[0]
+                    platform = component.split('.')[1]
+                    componentpath = self.conf_dir + '/custom_components/' + domain + '/' + platform + '.py'
             if self.hass.data[DATA_CC][component]['has_update']:
                 self.download_component(component, componentpath)
                 _LOGGER.info('Upgrade of %s from version %s to version %s complete', component, self.hass.data[DATA_CC][component]['local'], self.hass.data[DATA_CC][component]['remote'])
@@ -148,9 +151,7 @@ class CustomComponents:
             domain = component.split('.')[0]
             platform = component.split('.')[1]
             url = BASE_REPO + component + '/master/custom_components/' + domain + '/' + platform + '.py'
-        _LOGGER.debug(url)
         response = requests.get(url)
-        _LOGGER.debug(response)
         if response.status_code == 200:
             with open(componentpath, 'wb') as component_file:
                 component_file.write(response.content)
