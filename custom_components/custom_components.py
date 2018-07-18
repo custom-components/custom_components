@@ -16,7 +16,7 @@ from homeassistant.helpers.event import track_time_interval
 from homeassistant.helpers.discovery import load_platform
 from homeassistant.helpers.dispatcher import async_dispatcher_send
 
-__version__ = '0.0.4'
+__version__ = '0.0.5'
 
 DOMAIN = 'custom_components'
 DATA_CC = 'custom_components_data'
@@ -36,7 +36,7 @@ CONFIG_SCHEMA = vol.Schema({
 _LOGGER = logging.getLogger(__name__)
 
 BASE_REPO = 'https://raw.githubusercontent.com/custom-components/'
-VISIT_REPO = 'https://github.com/custom-components/${elem[0]}'
+VISIT_REPO = 'https://github.com/custom-components/%s'
 SENSOR_URL = 'https://raw.githubusercontent.com/custom-components/sensor.custom_components/master/custom_components/sensor/custom_components.py'
 VERSION_URL = BASE_REPO + 'information/master/repos.json'
 
