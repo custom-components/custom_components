@@ -16,7 +16,6 @@ here: `<config directory>/custom_components/custom_components.py`
   
 | key | default | required | description
 | --- | --- | --- | ---
-| **auto_update** | False | no | Activate auto update of custom_components, can be `True`/`False`
 | **hide_sensor** | False | no | Download and register the sensor used by the [component-tracker](https://github.com/ciotlosm/custom-lovelace/tree/master/component-tracker), can be `True`/`False`
 
 ☢️ It is strongly adviced to not have this auto update
@@ -27,8 +26,6 @@ In your `configuration.yaml`:
 
 ```yaml
 custom_components:
-  auto_update: False
-  hide_sensor: False
 ```
 
 ℹ️ The sensor will get discovered automatically if installation was done correctly.
