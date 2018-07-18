@@ -6,7 +6,6 @@ https://github.com/custom-components/custom_components
 """
 import logging
 import os
-import subprocess
 from datetime import timedelta
 
 import requests
@@ -16,7 +15,7 @@ from homeassistant.helpers.event import track_time_interval
 from homeassistant.helpers.discovery import load_platform
 from homeassistant.helpers.dispatcher import async_dispatcher_send
 
-__version__ = '0.0.6'
+__version__ = '0.0.7'
 
 DOMAIN = 'custom_components'
 DATA_CC = 'custom_components_data'
@@ -144,7 +143,7 @@ class CustomComponents:
                 _LOGGER.info('Upgrade of %s from version %s to version %s complete', component, self.hass.data[DATA_CC][component]['local'], self.hass.data[DATA_CC][component]['remote'])
                 self.hass.data[DATA_CC][component]['local'] = self.hass.data[DATA_CC][component]['remote']
                 self.hass.data[DATA_CC][component]['has_update'] = False
-                self.hass.data[DATA_CC][component]['has_update'] = False
+                self.hass.data[DATA_CC][component]['not_local'] = False
                 async_dispatcher_send(self.hass, SIGNAL_SENSOR_UPDATE)
             else:
                 _LOGGER.debug('Skipping upgrade for %s, no update available', component)
@@ -163,6 +162,7 @@ class CustomComponents:
         _LOGGER.info('Upgrade of %s from version %s to version %s complete', component, self.hass.data[DATA_CC][component]['local'], self.hass.data[DATA_CC][component]['remote'])
         self.hass.data[DATA_CC][component]['local'] = self.hass.data[DATA_CC][component]['remote']
         self.hass.data[DATA_CC][component]['has_update'] = False
+        self.hass.data[DATA_CC][component]['not_local'] = False
         async_dispatcher_send(self.hass, SIGNAL_SENSOR_UPDATE)
 
     def download_component(self, component, componentpath):
