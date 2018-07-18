@@ -1,8 +1,8 @@
 # custom_component to update custom_components
 
-A component which allows you to update your custom_components automatically and monitor their versions from the UI. It exposes three services: `custom_components.update_components`, `custom_components.update_component` and `custom_components.check_versions`.
+A component which allows you to update your custom_components automatically and monitor their versions from the UI. It exposes three services: `custom_components.update_all`, `custom_components.update_single` and `custom_components.check_all`.
 
-To get the best use for this component, use together with [tracker-card](https://github.com/ciotlosm/custom-lovelace/tree/master/card-tracker)\
+To get the best use for this component, use together with [tracker-card](https://github.com/ciotlosm/custom-lovelace/tree/master/tracker-card)\
 **To use this card you can _NOT_ set `hide_sensor` to `true`**
 
 ⚠️ For now this wil ONLY work if your components if from https://github.com/custom-components
@@ -16,7 +16,7 @@ here: `<config directory>/custom_components/custom_components.py`
   
 | key | default | required | description
 | --- | --- | --- | ---
-| **hide_sensor** | False | no | Download and register the sensor used by the [tracker-card](https://github.com/ciotlosm/custom-lovelace/tree/master/card-tracker), can be `True`/`False`
+| **hide_sensor** | False | no | Download and register the sensor used by the [tracker-card](https://github.com/ciotlosm/custom-lovelace/tree/master/tracker-card), can be `True`/`False`
 
 ☢️ It is strongly adviced to not have this auto update
 
@@ -44,17 +44,17 @@ logger:
 
 ## Update single component
 
-You can update a single component by passing which component you want to update to the  `custom_components.update_component` service.
+You can update a single component by passing which component you want to update to the  `custom_components.update_single` service.
 
 ### From dev-service
 
 Service:
-`custom_components.update_component`
+`custom_components.update_single`
 
 Service Data:
 
 ```json
 {
-  "component":"aensor.authenticated"
+  "component":"sensor.authenticated"
 }
 ```
