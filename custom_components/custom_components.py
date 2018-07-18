@@ -112,9 +112,10 @@ class CustomComponents:
     def update_components(self):
         """Update all components"""
         for component in self.components:
-            if self.hass.data[DATA_CC][component[0]]['has_update']:
-                self.update_component(component[0], component[1])
-            else:
+            try:
+                if self.hass.data[DATA_CC][component[0]]['has_update']:
+                    self.update_component(component[0], component[1])
+            except:
                 _LOGGER.debug('Skipping upgrade for %s, no update available', component[0])
 
     def update_component(self, component, componentpath=None):
