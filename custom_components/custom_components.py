@@ -192,7 +192,6 @@ class CustomComponents:
         else:
             _LOGGER.debug('Could not get the remote version for %s', component)
             remoteversion = False
-        _LOGGER.debug('%s has remote version __%s__', component, remoteversion)
         if remoteversion == '':
             remoteversion = False
         return remoteversion
