@@ -1,6 +1,6 @@
 # custom_component to update custom_components
 
-A component which allows you to update your custom_components automatically and monitor their versions from the UI. It exposes three services: `custom_components.update_all`, `custom_components.update_single` and `custom_components.check_all`.
+A component which allows you to update your custom_components automatically and monitor their versions from the UI. It exposes three services: `custom_components.download_single`, `custom_components.update_all`, `custom_components.update_single` and `custom_components.check_all`.
 
 To get the best use for this component, use together with [tracker-card](https://github.com/ciotlosm/custom-lovelace/tree/master/tracker-card)\
 **To use this card you can _NOT_ set `hide_sensor` to `true`**
@@ -48,8 +48,17 @@ You can update a single component by passing which component you want to update 
 
 ### From dev-service
 
-Service:
-`custom_components.update_single`
+Service: `custom_components.update_single`
+
+Service Data:
+
+```json
+{
+  "component":"sensor.authenticated"
+}
+```
+
+Service: `custom_components.download_single`
 
 Service Data:
 
