@@ -16,7 +16,7 @@ from homeassistant.helpers.event import track_time_interval
 from homeassistant.helpers.discovery import load_platform
 from homeassistant.helpers.dispatcher import async_dispatcher_send
 
-__version__ = '0.0.1'
+__version__ = '0.0.2'
 
 DOMAIN = 'custom_components'
 DATA_CC = 'custom_components_data'
@@ -99,14 +99,14 @@ class CustomComponents:
         if self.components:
             for component in self.components:
                 localversion = self.get_local_version(component[1])
-                _LOGGER.debug(localversion)
                 remoteversion = self.get_remote_version(component[0])
-                has_update = (localversion != False and remoteversion != False and remoteversion != localversion)
-                self.hass.data[DATA_CC][component[0]] = {
-                    "local": localversion,
-                    "remote": remoteversion,
-                    "has_update": has_update,
-                }
+                if remoteversion:
+                    has_update = (localversion != False and remoteversion != False and remoteversion != localversion)
+                    self.hass.data[DATA_CC][component[0]] = {
+                        "local": localversion,
+                        "remote": remoteversion,
+                        "has_update": has_update,
+                    }
             async_dispatcher_send(self.hass, SIGNAL_SENSOR_UPDATE)
 
     def update_components(self):
@@ -162,13 +162,11 @@ class CustomComponents:
         for dir in os.listdir(self.conf_dir + '/custom_components'):
             if not dir.endswith(".py") and not dir.endswith("_"):
                 if os.path.isdir(self.conf_dir + '/custom_components/' + dir):
-                    _LOGGER.debug(dir)
                     componentdir.append('/custom_components/' + dir)
         _LOGGER.debug(componentdir)
         for path in componentdir:
             for component in os.listdir(self.conf_dir + path):
                 if component.endswith(".py") and not component.endswith("c") and not component.startswith("_"):
-                    _LOGGER.debug(component)
                     componentpath = self.conf_dir + path + '/' + component
                     component.split('.')[0]
                     if path == '/custom_components':
@@ -179,7 +177,6 @@ class CustomComponents:
                         componentfullname = domain + '.' + platform
                     components.append([componentfullname, componentpath])
         _LOGGER.debug(components)
-
         return components
 
     def get_remote_version(self, component):
@@ -199,7 +196,6 @@ class CustomComponents:
 
     def get_local_version(self, componentpath):
         """Return the local version if any."""
-        _LOGGER.debug('looking for version in %s', componentpath)
         localversion = None
         with open(componentpath, 'r') as local:
             for line in local.readlines():
