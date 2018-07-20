@@ -15,7 +15,8 @@ from homeassistant.helpers.event import track_time_interval
 from homeassistant.helpers.discovery import load_platform
 from homeassistant.helpers.dispatcher import async_dispatcher_send
 
-__version__ = '0.0.8'
+__version__ = '0.0.9'
+MIN_SENSOR_VERSION = '0.0.1'
 
 DOMAIN = 'custom_components'
 DATA_CC = 'custom_components_data'
@@ -73,18 +74,11 @@ def setup(hass, config):
         sensor_dir = str(hass.config.path("custom_components/sensor/"))
         sensor_file = 'custom_components.py'
         sensor_full_path = sensor_dir + sensor_file
+        sensor_version = get_sensor_version(sensor_full_path)
         if not os.path.isfile(sensor_full_path):
-            _LOGGER.debug('Could not find %s in %s, trying to download.', sensor_file, sensor_dir)
-            response = requests.get(SENSOR_URL)
-            if response.status_code == 200:
-                _LOGGER.debug('Checking folder structure')
-                directory = os.path.dirname(sensor_dir)
-                if not os.path.exists(directory):
-                    os.makedirs(directory)
-                with open(sensor_full_path, 'wb+') as sensorfile:
-                    sensorfile.write(response.content)
-            else:
-                _LOGGER.critical('Failed to download sensor from %s', SENSOR_URL)
+            get_sensor(sensor_file, sensor_dir)
+        elif MIN_SENSOR_VERSION > sensor_version:
+            get_sensor(sensor_file, sensor_dir)
         load_platform(hass, 'sensor', DOMAIN)
     return True
 
@@ -235,3 +229,31 @@ class CustomComponents:
             localv = False
             _LOGGER.debug('File "%s" not found, assuming not installed', componentpath)
         return localv
+
+def get_sensor_version(sensor_full_path):
+    """Return the local version of the sensor."""
+    with open(sensor_full_path, 'r') as local:
+        for line in local.readlines():
+            if '__version__' in line:
+                sensorversion = line.split("'")[1]
+                break
+        local.close()
+    return sensorversion
+
+def get_sensor(sensor_file, sensor_dir):
+    """Downloading the sensor"""
+    _LOGGER.debug('Could not find %s in %s, or sensor is to old.', sensor_file, sensor_dir)
+    sensor_full_path = sensor_dir + sensor_file
+    response = requests.get(SENSOR_URL)
+    if response.status_code == 200:
+        _LOGGER.debug('Checking folder structure')
+        directory = os.path.dirname(sensor_dir)
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+        with open(sensor_full_path, 'wb+') as sensorfile:
+            sensorfile.write(response.content)
+        task_state = True
+    else:
+        _LOGGER.critical('Failed to download sensor from %s', SENSOR_URL)
+        task_state = False
+    return task_state
