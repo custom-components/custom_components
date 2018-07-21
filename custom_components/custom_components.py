@@ -13,7 +13,7 @@ import requests
 from homeassistant.helpers.event import track_time_interval
 
 
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 
 DOMAIN = 'custom_components'
 DATA_CC = 'custom_components_data'
@@ -59,7 +59,6 @@ def setup(hass, config):
         DOMAIN, 'check_all', controller.cache_versions)
     return True
 
-
 class CustomComponents:
     """Custom components controller."""
     def __init__(self, hass, conf_dir):
@@ -67,9 +66,9 @@ class CustomComponents:
         self.conf_dir = conf_dir
         self.components = None
         self.hass.data[DATA_CC] = {}
-        self.cache_versions() # Force a cache update on startup
+        self.cache_versions('now') # Force a cache update on startup
 
-    def cache_versions(self):
+    def cache_versions(self, call):
         """Cache"""
         self.components = self.get_components()
         self.hass.data[DATA_CC] = {} # Empty list to start from scratch
