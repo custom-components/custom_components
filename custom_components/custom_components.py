@@ -15,7 +15,7 @@ from homeassistant.helpers.event import track_time_interval
 from homeassistant.helpers.discovery import load_platform
 from homeassistant.helpers.dispatcher import async_dispatcher_send
 
-__version__ = '0.0.9'
+__version__ = '0.0.10'
 MIN_SENSOR_VERSION = '0.0.1'
 
 DOMAIN = 'custom_components'
@@ -74,10 +74,10 @@ def setup(hass, config):
         sensor_dir = str(hass.config.path("custom_components/sensor/"))
         sensor_file = 'custom_components.py'
         sensor_full_path = sensor_dir + sensor_file
-        sensor_version = get_sensor_version(sensor_full_path)
         if not os.path.isfile(sensor_full_path):
             get_sensor(sensor_file, sensor_dir)
-        elif MIN_SENSOR_VERSION > sensor_version:
+        sensor_version = get_sensor_version(sensor_full_path)
+        if MIN_SENSOR_VERSION > sensor_version:
             get_sensor(sensor_file, sensor_dir)
         load_platform(hass, 'sensor', DOMAIN)
     return True
