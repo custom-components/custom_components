@@ -13,7 +13,7 @@ import requests
 from homeassistant.helpers.event import track_time_interval
 
 
-__version__ = '0.0.11'
+__version__ = '1.0.0'
 
 DOMAIN = 'custom_components'
 DATA_CC = 'custom_components_data'
