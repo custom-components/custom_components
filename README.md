@@ -1,4 +1,10 @@
 # custom_component to update custom_components
+***
+***
+**No more updates are added to this component, use this instead:**\
+https://github.com/custom-components/custom_updater
+***
+***
 
 A component which allows you to update your custom_components automatically and monitor their versions from the UI. It exposes three services: `custom_components.download_single`, `custom_components.update_all`, `custom_components.update_single` and `custom_components.check_all`.
 
